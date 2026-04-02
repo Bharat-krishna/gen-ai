@@ -6,52 +6,12 @@ import requests
 from bs4 import BeautifulSoup, Tag
 import pandas as pd
 
-
-"""
-Generic job scraper for a company's public careers page.
-
-This file is PRE-CONFIGURED to work against the public
-training site `https://realpython.github.io/fake-jobs/`
-so you can run it immediately and see results.
-
-HOW TO USE / CUSTOMIZE
-----------------------
-1. Run it as-is to scrape the fake jobs site:
-
-       pip install -r requirements.txt
-       python job_scraper.py
-
-   It will save an Excel file like: jobs_2026-02-28_153000.xlsx
-
-2. To point it at a real company's careers page, change:
-   - BASE_URL and PAGINATED_URL_TEMPLATE
-   - JOB_CARD_SELECTOR
-   - TITLE_SELECTOR
-   - COMPANY_SELECTOR
-   - LOCATION_SELECTOR
-   - EXPERIENCE_SELECTOR
-   - SALARY_SELECTOR
-   - DEPARTMENT_SELECTOR
-   - DATE_POSTED_SELECTOR
-   - JOB_LINK_SELECTOR
-"""
-
-
-# ------------ CONFIGURATION ------------
-
-# The first careers page URL (normally page 1)
-# For this demo, we use Real Python's fake jobs site:
-# https://realpython.github.io/fake-jobs/
 BASE_URL = "https://realpython.github.io/fake-jobs/"
 
-# If the site uses page numbers like ?page=1, ?page=2, etc, adapt this.
-# For the fake-jobs site, everything is on one page, so we leave this empty.
 PAGINATED_URL_TEMPLATE: str = ""
 
-# Delay between requests (seconds) to be polite and reduce blocking risk
 REQUEST_DELAY_SECONDS = 1.0
 
-# HTTP headers to look more like a real browser
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (X11; Linux x86_64) "
@@ -61,34 +21,17 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-# CSS selectors – CHANGE THESE for your target site
-#
-# For the fake-jobs site, each job card looks like:
-# <div class="card-content">
-#   <h2 class="title">Job Title</h2>
-#   <h3 class="company">Company Name</h3>
-#   <p class="location">City, ST</p>
-#   <time datetime="2021-04-08">2021-04-08</time>
-#   ...
-#   <a class="card-footer-item" href="...">Apply</a>
-# </div>
-JOB_CARD_SELECTOR = "div.card-content"   # selector for each job listing container
-TITLE_SELECTOR = "h2.title"              # inside a card
-COMPANY_SELECTOR = "h3.company"          # inside a card
-LOCATION_SELECTOR = "p.location"         # inside a card
-EXPERIENCE_SELECTOR = ""                 # not available on fake-jobs site
-SALARY_SELECTOR = ""                     # not available on fake-jobs site
-DEPARTMENT_SELECTOR = ""                 # not available on fake-jobs site
-DATE_POSTED_SELECTOR = "time"            # inside a card
-JOB_LINK_SELECTOR = "a.card-footer-item" # link to the job detail page (relative or absolute URL)
+JOB_CARD_SELECTOR = "div.card-content"   
+TITLE_SELECTOR = "h2.title"              
+COMPANY_SELECTOR = "h3.company"          
+LOCATION_SELECTOR = "p.location"         
+EXPERIENCE_SELECTOR = ""                 
+SALARY_SELECTOR = ""                     
+DEPARTMENT_SELECTOR = ""                
+DATE_POSTED_SELECTOR = "time"            
+JOB_LINK_SELECTOR = "a.card-footer-item" 
 
-# Limit how many jobs we keep in the final Excel.
-# Set to a small number (e.g. 20) to look more "hand-picked".
-# Set to None to keep all scraped jobs.
 MAX_JOBS_TO_SAVE: Optional[int] = 25
-
-
-# ------------ SCRAPING HELPERS ------------
 
 def fetch_page(url: str, params: Optional[dict] = None) -> Optional[requests.Response]:
     """Fetch a page with basic error handling."""
@@ -192,7 +135,7 @@ def crawl_all_jobs() -> List[Dict[str, Optional[str]]]:
     return all_jobs
 
 
-# ------------ EXPORT TO EXCEL ------------
+# --EXPORT TO EXCEL
 
 def save_jobs_to_excel(jobs: List[Dict[str, Optional[str]]], filename: Optional[str] = None) -> str:
     """Save the scraped jobs to an Excel file and return the file path."""
@@ -204,7 +147,6 @@ def save_jobs_to_excel(jobs: List[Dict[str, Optional[str]]], filename: Optional[
         print("[WARN] No jobs to save – Excel file will not be created.")
         return filename
 
-    # Optionally limit how many jobs we keep, to look more "human sized"
     if MAX_JOBS_TO_SAVE is not None and len(jobs) > MAX_JOBS_TO_SAVE:
         print(f"[INFO] Limiting jobs from {len(jobs)} to {MAX_JOBS_TO_SAVE} for export.")
         jobs = jobs[:MAX_JOBS_TO_SAVE]
